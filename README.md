@@ -2,21 +2,18 @@
 
 This JavaScript library simplifies making authenticated requests to the Lista Robinson API using AWS Signature Version 4. It handles the complexities of generating the necessary authentication headers, signing requests, normalizing input data, and generating the required hashes, allowing developers to easily integrate with the Lista Robinson service.
 
-Based on:
-
-- [https://www.listarobinson.es/](https://www.listarobinson.es/)
-- [https://github.com/adigital-org/slr-client](https://github.com/adigital-org/slr-client)
-
 ## Table of Contents
 
 - [Lista Robinson API - JavaScript Client Library](#lista-robinson-api---javascript-client-library)
   - [Table of Contents](#table-of-contents)
   - [What Does the API Do?](#what-does-the-api-do)
   - [Installation](#installation)
+  - [Configuration](#configuration)
   - [Usage](#usage)
     - [Usage Example](#usage-example)
     - [Available Channels and Required Fields](#available-channels-and-required-fields)
     - [Field Types and Normalization](#field-types-and-normalization)
+  - [Testing from the Terminal](#testing-from-the-terminal)
 
 ## What Does the API Do?
 
@@ -30,8 +27,8 @@ Based on:
 1. **Clone the repository** and navigate to the project directory:
 
    ```bash
-   git clone https://github.com/alcibiadesc/robinson-list-js-api.git
-   cd robinson-list-js-api
+   git clone https://github.com/CampusTraining/api-library-robinson-js.git
+   cd api-lista-robinson-js
    ```
 
 2. **Install the dependencies**:
@@ -40,25 +37,41 @@ Based on:
    npm install
    ```
 
+## Configuration
+
+1. **Create a `.env` file** in the root directory of your project:
+
+   ```dotenv
+   ACCESS_KEY=YOUR_ACCESS_KEY
+   SECRET_KEY=YOUR_SECRET_KEY
+   AWS_REGION=eu-west-1
+   AWS_SERVICE=execute-api
+   API_ENDPOINT=https://api.listarobinson.es/v1/api/user
+   ```
+
+   Replace `YOUR_ACCESS_KEY` and `YOUR_SECRET_KEY` with your actual AWS credentials.
+
 ## Usage
 
 Here is an example of how to use the main function `sendListaRobinsonRequest` to make a request to the API.
-
-Replace `YOUR_ACCESS_KEY` and `YOUR_SECRET_KEY` with your actual Lista Robinson Credentials
 
 ### Usage Example
 
 ```javascript
 // example.js
 
+import { config } from "dotenv";
 import { sendListaRobinsonRequest } from "robinson-list-js-api";
 
+// Load environment variables
+config();
+
 // Retrieve credentials and configuration from environment variables
-const accessKey = "YOUR_ACCESS_KEY";
-const secretKey = "YOUR_SECRET_KEY";
-const region = "eu-west-1";
-const service = "execute-api";
-const endpoint = "https://api.listarobinson.es/v1/api/user";
+const accessKey = process.env.ACCESS_KEY;
+const secretKey = process.env.SECRET_KEY;
+const region = process.env.AWS_REGION;
+const service = process.env.AWS_SERVICE;
+const endpoint = process.env.API_ENDPOINT;
 
 // Data for the request
 const channel = "PhoneSimple"; // One of the available channels
@@ -66,6 +79,7 @@ const data = ["636238940"]; // Fields corresponding to the channel
 
 (async () => {
   try {
+    // Send request to the API
     const response = await sendListaRobinsonRequest({
       accessKey,
       secretKey,
@@ -75,14 +89,26 @@ const data = ["636238940"]; // Fields corresponding to the channel
       channel,
       data,
     });
-    console.log("API Response:", response);
+
+    // Handle the API response
+    if (response.success) {
+      console.log("Successfully processed:", response.data);
+    } else {
+      console.error("Request failed:", response.error);
+    }
   } catch (error) {
-    console.error("Error:", error);
+    console.error("An unexpected error occurred:", error.message);
   }
 })();
 ```
 
-**Note:** It is recommended to use **environment variables** to store sensitive information such as access keys, secret keys, and endpoint URLs. This ensures that sensitive data is not hardcoded in your source code, reducing security risks and allowing better flexibility across different environments (development, staging, production).
+**Note**: It is recommended to use environment variables to store sensitive information such as access keys, secret keys, and endpoint URLs. This ensures that sensitive data is not hardcoded in your source code, reducing security risks and allowing better flexibility across different environments (development, staging, production).
+
+**Running the Example:**
+
+```bash
+npm run example
+```
 
 ### Available Channels and Required Fields
 
@@ -171,3 +197,15 @@ Each field type is normalized according to specific rules before generating the 
 
 - **preserve**:
   - No normalization is applied.
+
+## Testing from the Terminal
+
+1. **Add your API credentials** in the `.env` file as shown in the configuration section.
+
+2. **Use the `example.js` file** to test the library with different channels and data.
+
+3. **Run the test script** from the terminal:
+
+   ```bash
+   npm run example
+   ```
