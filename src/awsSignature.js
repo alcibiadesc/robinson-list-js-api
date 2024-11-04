@@ -1,18 +1,4 @@
-// Conditionally import crypto or crypto-browserify based on environment
-let crypto;
-
-async function loadCrypto() {
-  if (typeof window !== "undefined" && window.crypto) {
-    // Browser environment: use crypto-browserify
-    crypto = await import("crypto-browserify");
-  } else {
-    // Node.js environment: use native crypto
-    crypto = await import("crypto");
-  }
-}
-
-// Call loadCrypto to initialize crypto before using it
-await loadCrypto();
+import crypto from "crypto-browserify";
 
 /**
  * Generates the signing key using AWS4-HMAC-SHA256.
