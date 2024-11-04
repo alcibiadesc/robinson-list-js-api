@@ -5,14 +5,32 @@ import { createAuthorizationHeader } from "./awsSignature.js";
 
 let fetchFunction;
 
-// Detecta si fetch está disponible (en navegadores y Node.js 18+)
-if (typeof fetch === "function") {
-  fetchFunction = fetch;
-} else {
-  // En versiones anteriores de Node.js
-  import("node-fetch").then((module) => {
-    fetchFunction = module.default;
-  });
+function initializeFetchFunction() {
+  if (fetchFunction) {
+    return; // Ya está inicializado
+  }
+
+  if (typeof fetch === "function") {
+    // En navegadores y Node.js 18+
+    fetchFunction = fetch.bind(globalThis);
+  } else if (
+    typeof process !== "undefined" &&
+    process.versions &&
+    process.versions.node
+  ) {
+    // En Node.js (excluye entornos de navegador)
+    try {
+      // Utiliza require para evitar problemas en el bundling del navegador
+      const nodeFetch = require("node-fetch");
+      fetchFunction = nodeFetch;
+    } catch (error) {
+      throw new Error(
+        "Necesitas instalar 'node-fetch' en entornos de Node.js anteriores a la versión 18."
+      );
+    }
+  } else {
+    throw new Error("Fetch API no está disponible en este entorno.");
+  }
 }
 
 /**
@@ -28,14 +46,7 @@ export async function sendListaRobinsonRequest({
   data, // array de valores de campos
 }) {
   // Asegura que fetchFunction esté inicializado
-  if (!fetchFunction) {
-    if (typeof fetch === "function") {
-      fetchFunction = fetch;
-    } else {
-      const { default: nodeFetch } = await import("node-fetch");
-      fetchFunction = nodeFetch;
-    }
-  }
+  initializeFetchFunction();
 
   // Sanitiza los campos de entrada
   const sanitizedRecord = sanitize(data, channel);
