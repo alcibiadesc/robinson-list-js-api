@@ -82,6 +82,8 @@ const data = ["636238940"]; // Fields corresponding to the channel
 })();
 ```
 
+**Note:** It is recommended to use **environment variables** to store sensitive information such as access keys, secret keys, and endpoint URLs. This ensures that sensitive data is not hardcoded in your source code, reducing security risks and allowing better flexibility across different environments (development, staging, production).
+
 ### Available Channels and Required Fields
 
 The following channels are supported, along with their required fields:
