@@ -1,6 +1,6 @@
-import P from "node-fetch";
-import i from "crypto-browserify";
-const f = {
+import fetch from "node-fetch";
+import crypto from "crypto-browserify";
+const channels = {
   PhoneSimple: {
     id: "04",
     fields: ["phone"],
@@ -58,98 +58,150 @@ const f = {
     fileType: "DNI_NIF_NIE",
     campaign: "DNI_NIF_NIE"
   }
-}, R = "Mixed", S = "0034", N = "ABCDEFGHIJKLMNOPQRSTUVWXYZÀÁÇÈÉÌÍÑÒÓÙÚÜàáçèéìíñòóùúü".split(
+};
+const mixedRecord = "Mixed";
+const defaultCountryCode = "0034";
+const textSrc = "ABCDEFGHIJKLMNOPQRSTUVWXYZÀÁÇÈÉÌÍÑÒÓÙÚÜàáçèéìíñòóùúü".split(
   ""
-), D = "abcdefghijklmnopqrstuvwxyzaaceeiinoouuuaaceeiinoouuu".split(
+);
+const textDst = "abcdefghijklmnopqrstuvwxyzaaceeiinoouuuaaceeiinoouuu".split(
   ""
-), E = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""), I = "abcdefghijklmnopqrstuvwxyz".split(""), A = /[^a-z]/g, C = /[^a-z0-9.@_\-+]/g, F = /[^0-9]/g, b = /[0-9]*/, k = "0123456789ABCDEFGHJKLMNPQRSTVWXYZ".split(""), q = "0123456789abcdefghjklmnpqrstvwxyz".split(""), v = /[^0-9abcdefghjklmnpqrstvwxyz]/g, g = (e, t, a) => a.split("").map((n) => {
-  const s = e.indexOf(n);
-  return s !== -1 ? t[s] : n;
-}).join(""), _ = {
-  phone: (e) => {
-    const t = e.replace(F, "");
-    return e.startsWith("+") ? "00" + t : e.startsWith("00") ? t : S + t;
+);
+const emailSrc = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+const emailDst = "abcdefghijklmnopqrstuvwxyz".split("");
+const textRegexp = /[^a-z]/g;
+const emailRegexp = /[^a-z0-9.@_\-+]/g;
+const numberRegexp = /[^0-9]/g;
+const portalRegexp = /[0-9]*/;
+const identitySrc = "0123456789ABCDEFGHJKLMNPQRSTVWXYZ".split("");
+const identityDst = "0123456789abcdefghjklmnpqrstvwxyz".split("");
+const identityRegex = /[^0-9abcdefghjklmnpqrstvwxyz]/g;
+const translate = (src, dst, value) => value.split("").map((c) => {
+  const idx = src.indexOf(c);
+  return idx !== -1 ? dst[idx] : c;
+}).join("");
+const normalizers = {
+  phone: (n) => {
+    const normalized = n.replace(numberRegexp, "");
+    if (n.startsWith("+")) return "00" + normalized;
+    if (n.startsWith("00")) return normalized;
+    return defaultCountryCode + normalized;
   },
-  text: (e) => g(N, D, e).replace(A, ""),
-  email: (e) => g(E, I, e).replace(C, ""),
-  portal: (e) => e === "sn" ? "sn" : e.match(b).toString(),
-  identity: (e) => g(k, q, e).replace(v, ""),
-  preserve: (e) => e
-}, O = (e, t) => {
-  const a = [...e], n = t === R ? a.shift() : t;
-  if (!f.hasOwnProperty(n))
-    return console.warn(`Unknown channel type "${n}" for record:`, e), null;
-  const s = f[n].fields.length;
-  return a.length !== s ? (console.warn("Malformed record:", e), null) : { channel: n, fields: a };
-}, W = (e) => {
+  text: (n) => translate(textSrc, textDst, n).replace(textRegexp, ""),
+  email: (n) => translate(emailSrc, emailDst, n).replace(emailRegexp, ""),
+  portal: (n) => n === "sn" ? "sn" : n.match(portalRegexp).toString(),
+  identity: (n) => translate(identitySrc, identityDst, n).replace(identityRegex, ""),
+  preserve: (n) => n
+};
+const sanitize = (fields, channel) => {
+  const sanFields = [...fields];
+  const sanChannel = channel === mixedRecord ? sanFields.shift() : channel;
+  if (!channels.hasOwnProperty(sanChannel)) {
+    console.warn(`Unknown channel type "${sanChannel}" for record:`, fields);
+    return null;
+  }
+  const expectedFieldsLength = channels[sanChannel].fields.length;
+  if (sanFields.length !== expectedFieldsLength) {
+    console.warn("Malformed record:", fields);
+    return null;
+  }
+  return { channel: sanChannel, fields: sanFields };
+};
+const recordToHash = (recordValues) => {
   try {
-    const { channel: t, fields: a } = e, { id: n, types: s } = f[t], o = a.map((r, c) => _[s[c]](r)).join("");
-    (o.length === 0 || o === S) && console.warn(
-      `Warning: empty record after normalization. Original: "${a}". Normalized for channel ${t}: "${o}".`
-    );
-    const l = n + o;
-    return i.createHash("sha256").update(l).digest("hex");
-  } catch (t) {
-    return console.error("Error generating hash:", t), null;
+    const { channel, fields } = recordValues;
+    const { id, types } = channels[channel];
+    const filtered = fields.map((val, i) => normalizers[types[i]](val)).join("");
+    if (filtered.length === 0 || filtered === defaultCountryCode) {
+      console.warn(
+        `Warning: empty record after normalization. Original: "${fields}". Normalized for channel ${channel}: "${filtered}".`
+      );
+    }
+    const query = id + filtered;
+    return crypto.createHash("sha256").update(query).digest("hex");
+  } catch (error) {
+    console.error("Error generating hash:", error);
+    return null;
   }
 };
-function j(e, t, a, n) {
-  const s = i.createHmac("sha256", `AWS4${e}`).update(t).digest(), o = i.createHmac("sha256", s).update(a).digest(), l = i.createHmac("sha256", o).update(n).digest();
-  return i.createHmac("sha256", l).update("aws4_request").digest();
+function getSignatureKey(key, dateStamp, regionName, serviceName) {
+  const kDate = crypto.createHmac("sha256", `AWS4${key}`).update(dateStamp).digest();
+  const kRegion = crypto.createHmac("sha256", kDate).update(regionName).digest();
+  const kService = crypto.createHmac("sha256", kRegion).update(serviceName).digest();
+  return crypto.createHmac("sha256", kService).update("aws4_request").digest();
 }
-function L(e, t, a, n, s, o) {
-  const r = (/* @__PURE__ */ new Date()).toISOString().replace(/[-:]/g, "").substring(0, 15) + "Z", c = r.substring(0, 8), d = new URL(o).pathname, m = new URL(o).host, u = "POST", p = `host:${m}
-`, h = "host", $ = i.createHash("sha256").update(s).digest("hex"), H = `${u}
-${d}
+function createAuthorizationHeader(accessKey, secretKey, region, service, payload, endpoint) {
+  const t = /* @__PURE__ */ new Date();
+  const amzDate = t.toISOString().replace(/[-:]/g, "").substring(0, 15) + "Z";
+  const dateStamp = amzDate.substring(0, 8);
+  const canonicalUri = new URL(endpoint).pathname;
+  const host = new URL(endpoint).host;
+  const method = "POST";
+  const canonicalHeaders = `host:${host}
+`;
+  const signedHeaders = "host";
+  const payloadHash = crypto.createHash("sha256").update(payload).digest("hex");
+  const canonicalRequest = `${method}
+${canonicalUri}
 
-${p}
-${h}
-${$}`, y = "AWS4-HMAC-SHA256", x = `${c}/${a}/${n}/aws4_request`, w = `${y}
-${r}
-${x}
-${i.createHash("sha256").update(H).digest("hex")}`, z = j(t, c, a, n), T = i.createHmac("sha256", z).update(w).digest("hex");
-  return { authorizationHeader: `${y} Credential=${e}/${x}, SignedHeaders=${h}, Signature=${T}`, amzDate: r };
+${canonicalHeaders}
+${signedHeaders}
+${payloadHash}`;
+  const algorithm = "AWS4-HMAC-SHA256";
+  const credentialScope = `${dateStamp}/${region}/${service}/aws4_request`;
+  const stringToSign = `${algorithm}
+${amzDate}
+${credentialScope}
+${crypto.createHash("sha256").update(canonicalRequest).digest("hex")}`;
+  const signingKey = getSignatureKey(secretKey, dateStamp, region, service);
+  const signature = crypto.createHmac("sha256", signingKey).update(stringToSign).digest("hex");
+  const authorizationHeader = `${algorithm} Credential=${accessKey}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
+  return { authorizationHeader, amzDate };
 }
-async function X({
-  accessKey: e,
-  secretKey: t,
-  region: a,
-  service: n,
-  endpoint: s,
-  channel: o,
-  data: l
+async function sendListaRobinsonRequest({
+  accessKey,
+  secretKey,
+  region,
+  service,
+  endpoint,
+  channel,
+  data
   // array of field values
 }) {
-  const r = O(l, o);
-  if (!r)
+  const sanitizedRecord = sanitize(data, channel);
+  if (!sanitizedRecord) {
     throw new Error("Invalid record");
-  const c = W(r);
-  if (!c)
+  }
+  const hash = recordToHash(sanitizedRecord);
+  if (!hash) {
     throw new Error("Failed to generate hash");
-  const d = c, { authorizationHeader: m, amzDate: u } = L(
-    e,
-    t,
-    a,
-    n,
-    d,
-    s
-  ), p = await P(s, {
+  }
+  const payload = hash;
+  const { authorizationHeader, amzDate } = createAuthorizationHeader(
+    accessKey,
+    secretKey,
+    region,
+    service,
+    payload,
+    endpoint
+  );
+  const response = await fetch(endpoint, {
     method: "POST",
     headers: {
       "Content-Type": "text/plain",
-      Authorization: m,
-      "X-Amz-Date": u
+      Authorization: authorizationHeader,
+      "X-Amz-Date": amzDate
     },
-    body: d
+    body: payload
   });
-  if (!p.ok) {
-    const h = await p.text();
+  if (!response.ok) {
+    const errorText = await response.text();
     throw new Error(
-      `HTTP error! status: ${p.status}, body: ${h}`
+      `HTTP error! status: ${response.status}, body: ${errorText}`
     );
   }
-  return p.json();
+  return response.json();
 }
 export {
-  X as sendListaRobinsonRequest
+  sendListaRobinsonRequest
 };
