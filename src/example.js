@@ -1,7 +1,7 @@
 import { config } from "dotenv";
-import { sendListaRobinsonRequest } from "robinson-list-js-api";
+import { sendListaRobinsonRequest } from "./index.js"; // Importa directamente desde el código fuente
 
-// Load environment variables
+// Carga las variables de entorno
 config();
 
 const accessKey = process.env.ACCESS_KEY || "";
@@ -10,7 +10,7 @@ const region = "eu-west-1";
 const service = "execute-api";
 const endpoint = "https://api.listarobinson.es/v1/api/user";
 
-// Example data for different channels
+// Datos de prueba
 const testData = [
   {
     channel: "DNI_NIF_NIE",

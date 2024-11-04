@@ -2,7 +2,7 @@
 
 import { channels, mixedRecord } from "./channels.js";
 import { normalizers, defaultCountryCode } from "./normalizers.js";
-import crypto from "crypto-browserify";
+import crypto from "crypto";
 
 /**
  * Checks if the given record matches the expected structure for

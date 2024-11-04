@@ -1,4 +1,4 @@
-import crypto from "crypto-browserify";
+import crypto from "crypto";
 
 /**
  * Generates the signing key using AWS4-HMAC-SHA256.

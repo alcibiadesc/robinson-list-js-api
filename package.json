@@ -3,8 +3,8 @@
   "version": "1.0.13",
   "author": "alcibiadesc",
   "description": "JavaScript library for making signed requests to the Lista Robinson API using AWS Signature Version 4",
-  "main": "dist/robinson-list-api.umd.js",
-  "module": "dist/robinson-list-api.es.js",
+  "main": "src/index.js",
+  "module": "src/index.js",
   "browser": "dist/robinson-list-api.umd.js",
   "types": "dist/types/index.d.ts",
   "type": "module",
@@ -17,8 +17,7 @@
   "dependencies": {
     "crypto-browserify": "^3.12.1",
     "dotenv": "^16.4.5",
-    "node-fetch": "^2.6.1",
-    "vite": "^5.4.10"
+    "node-fetch": "^3.3.2"
   },
   "scripts": {
     "build": "vite build",
@@ -27,12 +26,13 @@
   },
   "files": [
     "dist",
+    "src",
     "README.md"
   ],
   "exports": {
     ".": {
-      "import": "./dist/robinson-list-api.es.js",
-      "require": "./dist/robinson-list-api.umd.js"
+      "node": "./src/index.js",
+      "default": "./dist/robinson-list-api.umd.js"
     }
   },
   "repository": {
@@ -43,5 +43,11 @@
   "bugs": {
     "url": "https://github.com/alcibiadesc/robinson-list-js-api/issues"
   },
-  "homepage": "https://github.com/alcibiadesc/robinson-list-js-api#readme"
+  "homepage": "https://github.com/alcibiadesc/robinson-list-js-api#readme",
+  "devDependencies": {
+    "vite": "^5.4.10",
+    "vite-plugin-node-polyfills": "^0.22.0",
+    "buffer": "^6.0.3",
+    "stream-browserify": "^3.0.0"
+  }
 }
