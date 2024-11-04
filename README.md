@@ -2,13 +2,17 @@
 
 This JavaScript library simplifies making authenticated requests to the Lista Robinson API using AWS Signature Version 4. It handles the complexities of generating the necessary authentication headers, signing requests, normalizing input data, and generating the required hashes, allowing developers to easily integrate with the Lista Robinson service.
 
+Based on:
+
+- [https://www.listarobinson.es/](https://www.listarobinson.es/)
+- [https://github.com/adigital-org/slr-client](https://github.com/adigital-org/slr-client)
+
 ## Table of Contents
 
 - [Lista Robinson API - JavaScript Client Library](#lista-robinson-api---javascript-client-library)
   - [Table of Contents](#table-of-contents)
   - [What Does the API Do?](#what-does-the-api-do)
   - [Installation](#installation)
-  - [Configuration](#configuration)
   - [Usage](#usage)
     - [Usage Example](#usage-example)
     - [Available Channels and Required Fields](#available-channels-and-required-fields)
@@ -36,20 +40,11 @@ This JavaScript library simplifies making authenticated requests to the Lista Ro
    npm install
    ```
 
-## Configuration
-
-1. **Create a `.env` file** in the root directory of your project:
-
-   ```dotenv
-   ACCESS_KEY=YOUR_ACCESS_KEY
-   SECRET_KEY=YOUR_SECRET_KEY
-   ```
-
-   Replace `YOUR_ACCESS_KEY` and `YOUR_SECRET_KEY` with your actual AWS credentials.
-
 ## Usage
 
 Here is an example of how to use the main function `sendListaRobinsonRequest` to make a request to the API.
+
+Replace `YOUR_ACCESS_KEY` and `YOUR_SECRET_KEY` with your actual Lista Robinson Credentials
 
 ### Usage Example
 
