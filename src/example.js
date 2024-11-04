@@ -1,5 +1,5 @@
 import { config } from "dotenv";
-import { sendListaRobinsonRequest } from "./apiClient.js";
+import { sendListaRobinsonRequest } from "./index.js";
 
 // Load environment variables
 config();
