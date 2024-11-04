@@ -1,0 +1,21 @@
+{
+  "name": "api-library-robinson-js",
+  "version": "1.0.0",
+  "private": true,
+  "description": "JavaScript library for making signed requests to the Lista Robinson API using AWS Signature Version 4",
+  "main": "src/apiClient.js",
+  "type": "module",
+  "keywords": [
+    "AWS",
+    "Signature Version 4",
+    "Lista Robinson",
+    "API"
+  ],
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "node-fetch": "^2.6.1"
+  },
+  "scripts": {
+    "example": "node src/example.js"
+  }
+}
