@@ -38498,12 +38498,24 @@ ${crypto.createHash("sha256").update(canonicalRequest).digest("hex")}`;
   return { authorizationHeader, amzDate };
 }
 let fetchFunction;
-if (typeof fetch === "function") {
-  fetchFunction = fetch;
-} else {
-  import("node-fetch").then((module) => {
-    fetchFunction = module.default;
-  });
+function initializeFetchFunction() {
+  if (fetchFunction) {
+    return;
+  }
+  if (typeof fetch === "function") {
+    fetchFunction = fetch.bind(globalThis);
+  } else if (typeof process !== "undefined" && process.versions && process.versions.node) {
+    try {
+      const nodeFetch = require("node-fetch");
+      fetchFunction = nodeFetch;
+    } catch (error2) {
+      throw new Error(
+        "Necesitas instalar 'node-fetch' en entornos de Node.js anteriores a la versión 18."
+      );
+    }
+  } else {
+    throw new Error("Fetch API no está disponible en este entorno.");
+  }
 }
 async function sendListaRobinsonRequest({
   accessKey,
@@ -38515,14 +38527,7 @@ async function sendListaRobinsonRequest({
   data
   // array de valores de campos
 }) {
-  if (!fetchFunction) {
-    if (typeof fetch === "function") {
-      fetchFunction = fetch;
-    } else {
-      const { default: nodeFetch } = await import("node-fetch");
-      fetchFunction = nodeFetch;
-    }
-  }
+  initializeFetchFunction();
   const sanitizedRecord = sanitize(data, channel);
   if (!sanitizedRecord) {
     throw new Error("Registro inválido");
