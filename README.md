@@ -63,46 +63,50 @@ Here is an example of how to use the main function `sendListaRobinsonRequest` to
 ### Usage Example
 
 ```javascript
-// example.js
-
 import { config } from "dotenv";
 import { sendListaRobinsonRequest } from "robinson-list-js-api";
 
-// Load environment variables
+// Load .env variables
 config();
 
-// Retrieve credentials and configuration from environment variables
-const accessKey = process.env.ACCESS_KEY;
-const secretKey = process.env.SECRET_KEY;
-const region = process.env.AWS_REGION;
-const service = process.env.AWS_SERVICE;
-const endpoint = process.env.API_ENDPOINT;
+const accessKey = process.env.ACCESS_KEY || "";
+const secretKey = process.env.SECRET_KEY || "";
+const region = "eu-west-1";
+const service = "execute-api";
+const endpoint = "https://api.listarobinson.es/v1/api/user";
 
-// Data for the request
-const channel = "PhoneSimple"; // One of the available channels
-const data = ["636238940"]; // Fields corresponding to the channel
+// x3 Example Data
+const testData = [
+  {
+    channel: "DNI_NIF_NIE",
+    data: ["12345678Z"],
+  },
+  {
+    channel: "PhoneSimple",
+    data: ["612345678"],
+  },
+  {
+    channel: "Email",
+    data: ["ejemplo.prueba@example.com"],
+  },
+];
 
 (async () => {
   try {
-    // Send request to the API
-    const response = await sendListaRobinsonRequest({
-      accessKey,
-      secretKey,
-      region,
-      service,
-      endpoint,
-      channel,
-      data,
-    });
-
-    // Handle the API response
-    if (response.success) {
-      console.log("Successfully processed:", response.data);
-    } else {
-      console.error("Request failed:", response.error);
+    for (const test of testData) {
+      const response = await sendListaRobinsonRequest({
+        accessKey,
+        secretKey,
+        region,
+        service,
+        endpoint,
+        channel: test.channel,
+        data: test.data,
+      });
+      console.log(`API Response for channel ${test.channel}:`, response);
     }
   } catch (error) {
-    console.error("An unexpected error occurred:", error.message);
+    console.error("Error:", error);
   }
 })();
 ```
