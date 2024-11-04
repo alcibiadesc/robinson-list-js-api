@@ -1,6 +1,6 @@
 {
   "name": "robinson-list-js-api",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "author": "alcibiadesc",
   "description": "JavaScript library for making signed requests to the Lista Robinson API using AWS Signature Version 4",
   "main": "src/index.js",
