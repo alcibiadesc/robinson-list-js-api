@@ -2,7 +2,22 @@
 
 import { channels, mixedRecord } from "./channels.js";
 import { normalizers, defaultCountryCode } from "./normalizers.js";
-import crypto from "crypto";
+
+let crypto;
+
+// Function to load the appropriate `crypto` module based on the environment
+async function loadCrypto() {
+  if (typeof window !== "undefined" && window.crypto) {
+    // Browser environment: use crypto-browserify
+    crypto = await import("crypto-browserify");
+  } else {
+    // Node.js environment: use native crypto
+    crypto = await import("crypto");
+  }
+}
+
+// Call `loadCrypto` to ensure `crypto` is loaded before using it
+await loadCrypto();
 
 /**
  * Checks if the given record matches the expected structure for

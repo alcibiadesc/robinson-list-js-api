@@ -12,13 +12,13 @@
     "API"
   ],
   "dependencies": {
+    "crypto-browserify": "^3.12.1",
     "dotenv": "^16.4.5",
     "node-fetch": "^2.6.1"
   },
   "scripts": {
     "example": "node src/example.js"
   },
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/alcibiadesc/robinson-list-js-api.git"
