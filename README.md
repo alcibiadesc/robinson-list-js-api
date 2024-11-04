@@ -13,7 +13,6 @@ This JavaScript library simplifies making authenticated requests to the Lista Ro
     - [Usage Example](#usage-example)
     - [Available Channels and Required Fields](#available-channels-and-required-fields)
     - [Field Types and Normalization](#field-types-and-normalization)
-  - [Testing from the Terminal](#testing-from-the-terminal)
 
 ## What Does the API Do?
 
@@ -27,8 +26,8 @@ This JavaScript library simplifies making authenticated requests to the Lista Ro
 1. **Clone the repository** and navigate to the project directory:
 
    ```bash
-   git clone https://github.com/CampusTraining/api-library-robinson-js.git
-   cd api-lista-robinson-js
+   git clone https://github.com/alcibiadesc/robinson-list-js-api.git
+   cd robinson-list-js-api
    ```
 
 2. **Install the dependencies**:
@@ -57,15 +56,11 @@ Here is an example of how to use the main function `sendListaRobinsonRequest` to
 ```javascript
 // example.js
 
-import { config } from "dotenv";
-import { sendListaRobinsonRequest } from "./apiClient.js";
-
-// Load environment variables
-config();
+import { sendListaRobinsonRequest } from "robinson-list-js-api";
 
 // Retrieve credentials and configuration from environment variables
-const accessKey = process.env.AWS_ACCESS_KEY;
-const secretKey = process.env.AWS_SECRET_KEY;
+const accessKey = "YOUR_ACCESS_KEY";
+const secretKey = "YOUR_SECRET_KEY";
 const region = "eu-west-1";
 const service = "execute-api";
 const endpoint = "https://api.listarobinson.es/v1/api/user";
@@ -90,12 +85,6 @@ const data = ["636238940"]; // Fields corresponding to the channel
     console.error("Error:", error);
   }
 })();
-```
-
-**Running the Example:**
-
-```bash
-npm run example
 ```
 
 ### Available Channels and Required Fields
@@ -185,15 +174,3 @@ Each field type is normalized according to specific rules before generating the 
 
 - **preserve**:
   - No normalization is applied.
-
-## Testing from the Terminal
-
-1. **Add your API credentials** in the `.env` file as shown in the configuration section.
-
-2. **Use the `example.js` file** to test the library with different channels and data.
-
-3. **Run the test script** from the terminal:
-
-   ```bash
-   npm run example
-   ```
