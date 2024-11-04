@@ -1,6 +1,6 @@
 (function(global, factory) {
-  typeof exports === "object" && typeof module !== "undefined" ? factory(exports, require("node-fetch"), require("crypto-browserify")) : typeof define === "function" && define.amd ? define(["exports", "node-fetch", "crypto-browserify"], factory) : (global = typeof globalThis !== "undefined" ? globalThis : global || self, factory(global.RobinsonListAPI = {}, global.fetch, global.crypto));
-})(this, function(exports2, fetch, crypto) {
+  typeof exports === "object" && typeof module !== "undefined" ? factory(exports, require("crypto-browserify")) : typeof define === "function" && define.amd ? define(["exports", "crypto-browserify"], factory) : (global = typeof globalThis !== "undefined" ? globalThis : global || self, factory(global.RobinsonListAPI = {}, global.crypto));
+})(this, function(exports2, crypto) {
   "use strict";
   const channels = {
     PhoneSimple: {
@@ -160,6 +160,15 @@ ${crypto.createHash("sha256").update(canonicalRequest).digest("hex")}`;
     const authorizationHeader = `${algorithm} Credential=${accessKey}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
     return { authorizationHeader, amzDate };
   }
+  let fetchFunction;
+  async function initializeFetch() {
+    if (typeof window === "undefined") {
+      const { default: nodeFetch } = await import("node-fetch");
+      fetchFunction = nodeFetch;
+    } else {
+      fetchFunction = fetch;
+    }
+  }
   async function sendListaRobinsonRequest({
     accessKey,
     secretKey,
@@ -170,6 +179,9 @@ ${crypto.createHash("sha256").update(canonicalRequest).digest("hex")}`;
     data
     // array of field values
   }) {
+    if (!fetchFunction) {
+      await initializeFetch();
+    }
     const sanitizedRecord = sanitize(data, channel);
     if (!sanitizedRecord) {
       throw new Error("Invalid record");
@@ -187,7 +199,7 @@ ${crypto.createHash("sha256").update(canonicalRequest).digest("hex")}`;
       payload,
       endpoint
     );
-    const response = await fetch(endpoint, {
+    const response = await fetchFunction(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "text/plain",

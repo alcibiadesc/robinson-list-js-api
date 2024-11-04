@@ -1,6 +1,19 @@
-import fetch from "node-fetch";
 import { recordToHash, sanitize } from "./utils.js";
 import { createAuthorizationHeader } from "./awsSignature.js";
+
+let fetchFunction;
+
+// Función de inicialización para configurar `fetch` en el entorno adecuado
+async function initializeFetch() {
+  if (typeof window === "undefined") {
+    // Importa `node-fetch` solo en entornos de servidor (Node.js)
+    const { default: nodeFetch } = await import("node-fetch");
+    fetchFunction = nodeFetch;
+  } else {
+    // Usa `fetch` nativo en el navegador
+    fetchFunction = fetch;
+  }
+}
 
 /**
  * Makes a request to the Lista Robinson API with the AWS signature.
@@ -14,6 +27,11 @@ export async function sendListaRobinsonRequest({
   channel,
   data, // array of field values
 }) {
+  // Inicializa `fetchFunction` si no está configurado
+  if (!fetchFunction) {
+    await initializeFetch();
+  }
+
   // Sanitize the input fields
   const sanitizedRecord = sanitize(data, channel);
   if (!sanitizedRecord) {
@@ -38,7 +56,7 @@ export async function sendListaRobinsonRequest({
     endpoint
   );
 
-  const response = await fetch(endpoint, {
+  const response = await fetchFunction(endpoint, {
     method: "POST",
     headers: {
       "Content-Type": "text/plain",

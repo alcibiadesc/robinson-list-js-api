@@ -1,4 +1,3 @@
-import fetch from "node-fetch";
 import crypto from "crypto-browserify";
 const channels = {
   PhoneSimple: {
@@ -158,6 +157,15 @@ ${crypto.createHash("sha256").update(canonicalRequest).digest("hex")}`;
   const authorizationHeader = `${algorithm} Credential=${accessKey}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
   return { authorizationHeader, amzDate };
 }
+let fetchFunction;
+async function initializeFetch() {
+  if (typeof window === "undefined") {
+    const { default: nodeFetch } = await import("node-fetch");
+    fetchFunction = nodeFetch;
+  } else {
+    fetchFunction = fetch;
+  }
+}
 async function sendListaRobinsonRequest({
   accessKey,
   secretKey,
@@ -168,6 +176,9 @@ async function sendListaRobinsonRequest({
   data
   // array of field values
 }) {
+  if (!fetchFunction) {
+    await initializeFetch();
+  }
   const sanitizedRecord = sanitize(data, channel);
   if (!sanitizedRecord) {
     throw new Error("Invalid record");
@@ -185,7 +196,7 @@ async function sendListaRobinsonRequest({
     payload,
     endpoint
   );
-  const response = await fetch(endpoint, {
+  const response = await fetchFunction(endpoint, {
     method: "POST",
     headers: {
       "Content-Type": "text/plain",
