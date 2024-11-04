@@ -3,7 +3,10 @@
   "version": "1.0.9",
   "author": "alcibiadesc",
   "description": "JavaScript library for making signed requests to the Lista Robinson API using AWS Signature Version 4",
-  "main": "src/index.js",
+  "main": "dist/robinson-list-api.umd.js",
+  "module": "dist/robinson-list-api.es.js",
+  "browser": "dist/robinson-list-api.umd.js",
+  "types": "dist/types/index.d.ts",
   "type": "module",
   "keywords": [
     "AWS",
@@ -18,8 +21,14 @@
     "vite": "^5.4.10"
   },
   "scripts": {
-    "example": "node src/example.js"
+    "build": "vite build",
+    "example": "node src/example.js",
+    "prepublishOnly": "npm run build"
   },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/alcibiadesc/robinson-list-js-api.git"
