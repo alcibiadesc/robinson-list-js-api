@@ -29,6 +29,12 @@
     "dist",
     "README.md"
   ],
+  "exports": {
+    ".": {
+      "import": "./dist/robinson-list-api.es.js",
+      "require": "./dist/robinson-list-api.umd.js"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/alcibiadesc/robinson-list-js-api.git"
