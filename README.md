@@ -4,6 +4,8 @@ This JavaScript library simplifies making authenticated requests to the Lista Ro
 
 ## Compatibility Notice
 
+⚠️ **This library currently supports only Node.js environments** and may not work in browsers due to CORS restrictions imposed by the Lista Robinson API, which blocks requests from browser origins. If you're interested in helping us expand support to browser environments, contributions are welcome! Feel free to check out the repository and submit a pull request.
+
 ## Table of Contents
 
 - [Lista Robinson API - JavaScript Client Library](#lista-robinson-api---javascript-client-library)
