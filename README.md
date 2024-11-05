@@ -40,12 +40,17 @@ npm i robinson-list-js-api
    ```dotenv
    ACCESS_KEY=YOUR_ACCESS_KEY
    SECRET_KEY=YOUR_SECRET_KEY
-   AWS_REGION=eu-west-1
-   AWS_SERVICE=execute-api
-   API_ENDPOINT=https://api.listarobinson.es/v1/api/user
    ```
 
    Replace `YOUR_ACCESS_KEY` and `YOUR_SECRET_KEY` with your actual AWS credentials.
+
+In this example we use [dotenv](https://www.npmjs.com/package/dotenv) to loads environment variables from a .env file into process.env
+
+If you want to use the same library
+
+```bash
+npm install dotenv --save
+```
 
 ## Usage
 
