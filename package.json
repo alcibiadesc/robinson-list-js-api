@@ -4,6 +4,7 @@
   "author": "alcibiadesc",
   "description": "JavaScript library for making signed requests to the Lista Robinson API using AWS Signature Version 4",
   "main": "src/index.js",
+  "readme": "./README.md",
   "module": "src/index.js",
   "browser": "dist/robinson-list-api.umd.js",
   "types": "dist/types/index.d.ts",
