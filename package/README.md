@@ -29,9 +29,18 @@ This JavaScript library simplifies making authenticated requests to the Lista Ro
 
 ## Installation
 
-```bash
-npm i robinson-list-js-api
-```
+1. **Clone the repository** and navigate to the project directory:
+
+   ```bash
+   git clone https://github.com/CampusTraining/api-library-robinson-js.git
+   cd api-lista-robinson-js
+   ```
+
+2. **Install the dependencies**:
+
+   ```bash
+   npm install
+   ```
 
 ## Configuration
 
